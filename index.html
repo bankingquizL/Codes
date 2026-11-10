@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Bank Exam Quiz</title>
+
+<style>
+
+body{
+    font-family: Arial, sans-serif;
+    background:#f4f6f9;
+    margin:0;
+    padding:20px;
+}
+
+.container{
+    max-width:1000px;
+    margin:auto;
+}
+
+h1{
+    text-align:center;
+}
+
+/* ========================= */
+/* TIMER AREA */
+/* ========================= */
+
+#timer-container{
+    position:sticky;
+    top:0;
+    z-index:100;
+    background:#f4f6f9;
+    padding-bottom:10px;
+}
+
+#timer{
+    background:#222;
+    color:white;
+    padding:15px;
+    text-align:center;
+    font-size:22px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+.timer-buttons{
+    text-align:center;
+}
+
+#pauseBtn,
+#resumeBtn{
+    padding:10px 20px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+    margin:5px;
+}
+
+#pauseBtn{
+    background:#ff9800;
+    color:white;
+}
+
+#resumeBtn{
+    background:#28a745;
+    color:white;
+}
+
+.question{
+    background:white;
+    padding:20px;
+    margin-bottom:20px;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.question h3{
+    margin-bottom:15px;
+}
+
+.option{
+    display:block;
+    padding:12px;
+    margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.2s;
+}
+
+.option:hover{
+    background:#f0f0f0;
+}
+
+.selected{
+    background:#cfe2ff;
+    border:2px solid #0d6efd;
+}
+
+.mark-btn{
+    margin-top:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#ff9800;
+    color:white;
+}
+
+.marked{
+    background:#ffcc80 !important;
+}
+
+.review-marked{
+    background:#e0e0e0 !important;
+    border:2px solid #9e9e9e;
+}
+
+.clear-btn{
+    margin-top:10px;
+    margin-left:10px;
+    padding:8px 15px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    background:#dc3545;
+    color:white;
+}
+
+.submit-btn{
+    width:100%;
+    padding:15px;
+    font-size:20px;
+    border:none;
+    border-radius:10px;
+    background:#28a745;
+    color:white;
+    cursor:pointer;
+    margin-top:20px;
+}
+
+.result-box{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.review-btn{
+    padding:12px 20px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#007bff;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.review-question{
+    background:white;
+    padding:20px;
+    margin:20px 0;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.correct{
+    color:green;
+    font-weight:bold;
+}
+
+.wrong{
+    color:red;
+    font-weight:bold;
+}
+
+.unanswered{
+    color:orange;
+    font-weight:bold;
+}
+
+.correct-answer{
+    background:#d4edda;
+    padding:10px;
+    border-radius:8px;
+    margin-top:10px;
+}
+
+.disabled-option{
+    pointer-events:none;
+    opacity:0.6;
+}
+
+.disabled-btn{
+    opacity:0.6;
+    cursor:not-allowed;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Bank Exam MCQ Quiz</h1>
+
+<!-- ========================= -->
+<!-- TIMER -->
+<!-- ========================= -->
+
+<div id="timer-container">
+
+    <div id="timer">
+        Time Left: 20:00
+    </div>
+
+    <div class="timer-buttons">
+
+        <button id="pauseBtn" onclick="pauseTimer()">
+            Pause
+        </button>
+
+        <button id="resumeBtn" onclick="resumeTimer()" disabled>
+            Resume
+        </button>
+
+    </div>
+
+</div>
+
+<div id="quiz"></div>
+
+<button class="submit-btn" onclick="submitQuiz()">
+Submit Quiz
+</button>
+
+</div>
+
+<script>
+
+// ===============================
+// QUESTIONS AREA
+// ===============================
+
+const questions = [
+{q:"1. The Basic Statistical Return (BSR), introduced by the Reserve Bank of India (RBI) in 1972, is associated with financial reporting and income tax-related transactions. Which of the following correctly describes the BSR code structure?", options:["A 7-digit numeric code in which the first 3 digits identify the bank and the remaining 4 digits identify the specific bank","A 9-digit numeric code in which the first 3 digits identify the city and the remaining 6 digits identify the branch","An 11-digit alphanumeric code in which the first 4 digits identify the bank","A 7-digit numeric code in which the first 4 digits identify the bank and the remaining 3 digits identify the customer"], answer:0},
+
+{q:"2. The Indian Financial System Code (IFSC), introduced by the Reserve Bank of India (RBI) in 2008, facilitates electronic fund transfers between bank branches. Which of the following correctly represents its structure?", options:["12-digit alphanumeric code; first 2 digits represent the country and the remaining digits identify the security","11-digit alphanumeric code; first 4 characters identify the bank, the 5th character is reserved for future use, and the last 6 characters identify the branch","9-digit numeric code; first 3 digits represent the city, next 3 the bank and last 3 the branch","8–11-digit alphanumeric code; first 4 characters represent the bank and next 2 represent the country"], answer:1},
+
+{q:"3. Mobile Money Identifier (MMID), introduced by the National Payments Corporation of India (NPCI) in 2010, is used for instant mobile-based fund transfers. Which of the following statements correctly describes the MMID?", options:["It is a 6-digit numeric code used to identify gold jewellery under the hallmarking system","It is a 7-digit numeric code in which the first 3 digits identify the city and the remaining 4 digits identify the bank","It is a 7-digit numeric code in which the first 4 digits identify the bank and the last 3 digits identify the customer account","It is an 11-digit alphanumeric code used to identify bank branches"], answer:2},
+
+{q:"4. The Know Your Customer Identification Number (KIN), associated with the Central KYC (CKYC) initiative introduced in 2016, aims to eliminate repeated submission of physical KYC documents across financial institutions. Which organisation administers the Central KYC Records Registry?", options:["National Payments Corporation of India (NPCI)","Securities and Exchange Board of India (SEBI)","Bureau of Indian Standards (BIS)","Central Registry of Securitisation Asset Reconstruction and Security Interest of India (CERSAI)"], answer:3},
+
+{q:"5. Under the Central Know Your Customer (CKYC) framework, a unique identification number is provided to customers to facilitate KYC verification across financial institutions. What is the total number of digits in the CKYC identification number?", options:["14 digits","12 digits","10 digits","15 digits"], answer:0},
+
+{q:"6. The Hallmark Unique Identification (HUID) system was introduced by the Bureau of Indian Standards (BIS) in 2021 and made mandatory for applicable gold jewellery hallmarking from 2023. What is the primary purpose of this identification system?", options:["To identify the registered bank branch involved in gold loan transactions","To ensure the purity and traceability of hallmarked gold jewellery and prevent fraudulent practices","To identify the country and issuer of gold-backed securities","To facilitate international transfer of gold-related financial assets"], answer:1},
+
+{q:"7. The Hallmark Unique Identification (HUID) number is an important feature of the gold hallmarking system introduced by the Bureau of Indian Standards (BIS). Which of the following correctly describes the HUID?", options:["A 12-digit alphanumeric code identifying the country, security type and issuer","A 7-digit numeric code identifying the bank and customer account","A 6-digit alphanumeric identification code associated with hallmarked jewellery, supporting traceability of the registered jeweller and hallmarking centre","An 11-digit numeric code identifying the city, bank and jewellery testing branch"], answer:2},
+
+{q:"8. The International Securities Identification Number (ISIN), developed under the International Organization for Standardization (ISO) framework in 1981 and adopted in India in 1996, is used to identify securities such as shares, bonds and mutual funds. What is the total length of an ISIN code?", options:["10 alphanumeric characters","11 alphanumeric characters","9 numeric digits","12 alphanumeric characters"], answer:3},
+
+{q:"9. An International Securities Identification Number (ISIN) is a unique identification code assigned to financial securities. Which of the following correctly explains the structure of a 12-character ISIN?", options:["First 2 characters represent the country, 3rd character represents the security type, characters 4–11 form the national security identifier and the 12th character is a check digit","First 4 characters represent the bank, 5th is reserved and the last 6 represent the branch","First 3 characters represent the country, next 4 represent the issuer and last 5 represent the security type","First 2 characters represent the bank, next 6 represent the branch and last 4 represent the customer"], answer:0},
+
+{q:"10. The Permanent Account Number (PAN), introduced by the Income Tax Department in 1972, is a unique 10-character alphanumeric identifier used to track financial transactions and prevent tax evasion. What does the fourth character of a PAN represent?", options:["The first letter of the holder's surname","The status/category of the PAN holder, such as P, C, F, H or T","The sequential number assigned to the PAN holder","The alphabetical check digit used to validate the PAN"], answer:1},
+
+{q:"11. In the Permanent Account Number (PAN) structure, the fifth character carries specific information about the PAN holder. Which of the following does it represent?", options:["The category of the PAN holder","The country of registration","The first letter of the surname or last name of an individual holder","The alphabetical check digit"], answer:2},
+
+{q:"12. The Goods and Services Tax Identification Number (GSTIN), introduced in India in 2017, is a unique identification number assigned to registered taxpayers under the GST regime. What is the total length of a GSTIN?", options:["10 alphanumeric characters","11 alphanumeric characters","14 alphanumeric characters","15 alphanumeric characters"], answer:3},
+
+{q:"13. The Goods and Services Tax Identification Number (GSTIN) follows a structured 15-character alphanumeric format. Which character is generally reserved as the default character in this identification number?", options:["The 14th character – Z","The 5th character – X","The 10th character – P","The 15th character – Z"], answer:0},
+
+{q:"14. The Automated Permanent Academic Account Registry (APAAR ID), introduced by the Ministry of Education (MoE) in 2023, aims to provide students with a unified lifelong digital academic identity under the initiative 'One Nation, One Student ID'. How many digits does an APAAR ID contain?", options:["10 numeric digits","12 numeric digits","14 numeric digits","15 alphanumeric characters"], answer:1},
+
+{q:"15. The Magnetic Ink Character Recognition (MICR) technology, introduced in India by the Reserve Bank of India (RBI) in 1987, facilitates faster processing of cheques by recognising characters printed using magnetic ink. Which of the following correctly represents the MICR code structure?", options:["7-digit numeric code; first 3 digits identify the bank and last 4 identify the branch","11-digit alphanumeric code; first 4 identify the bank and last 6 identify the branch","9-digit numeric code; first 3 digits identify the city, next 3 identify the bank and last 3 identify the branch","12-digit alphanumeric code; first 2 identify the country and last digit is a check digit"], answer:2},
+
+{q:"16. The Society for Worldwide Interbank Financial Telecommunication (SWIFT) was established in 1977 to facilitate secure financial messaging between banks and financial institutions globally. How many countries initially joined the SWIFT network?", options:["24 countries","50 countries","74 countries","34 countries"], answer:3},
+
+{q:"17. The Society for Worldwide Interbank Financial Telecommunication (SWIFT) code is used to identify banks and financial institutions during international money transfers. Which of the following correctly describes the SWIFT code format?", options:["8–11 alphanumeric characters; first 4 identify the bank, next 2 identify the country, next 2 identify the location and optional last 3 identify the branch","11 alphanumeric characters; first 4 identify the bank, 5th is reserved and last 6 identify the branch","12 alphanumeric characters; first 2 identify the country, 3rd identifies the security type and last digit is a check digit","9 numeric digits; first 3 identify the city, next 3 identify the bank and last 3 identify the branch"], answer:0},
+
+{q:"18. The Society for Worldwide Interbank Financial Telecommunication (SWIFT) network was established in 1977. India became a member of this international financial messaging network in which year, according to the given details?", options:["1981","1991","1996","2008"], answer:1},
+
+{q:"19. Consider the following pairs of financial identification codes and their respective introducing organisations. Which of the following pairs is correctly matched?", options:["MMID – Reserve Bank of India (RBI); HUID – National Payments Corporation of India (NPCI)","IFSC – Securities and Exchange Board of India (SEBI); MICR – Bureau of Indian Standards (BIS)","MMID – National Payments Corporation of India (NPCI); IFSC – Reserve Bank of India (RBI)","ISIN – Income Tax Department; PAN – International Organization for Standardization (ISO)"], answer:2},
+
+{q:"20. Several identification codes are used in India's financial and administrative systems for different purposes. Which of the following combinations is correctly matched with its primary purpose?", options:["BSR – International identification of securities; ISIN – Identification of bank branches for domestic fund transfers","HUID – Identification of taxpayers; PAN – Identification of hallmarked gold jewellery","APAAR ID – International interbank messaging; SWIFT – Lifelong academic identity for students","MICR – Faster cheque processing; GSTIN – Identification of registered taxpayers under the Goods and Services Tax regime"], answer:3},
+
+{q:"21. Which of the following identification codes was introduced earliest among the listed codes, according to the given details?", options:["International Securities Identification Number (ISIN) ","Magnetic Ink Character Recognition (MICR)  ","Basic Statistical Return (BSR) ","Indian Financial System Code (IFSC) "], answer:2},
+
+{q:"22. Which of the following pairs of identification codes was introduced in the same year, according to the given information?", options:["BSR and PAN – 1972","IFSC and MMID – 2010","MICR and ISIN – 1996","HUID and APAAR ID – 2023"], answer:0},
+
+{q:"23. A customer wants to transfer funds electronically from one bank branch to another within India. Which identification code is primarily required to identify the beneficiary's bank branch?", options:["MICR – Magnetic Ink Character Recognition","IFSC – Indian Financial System Code","MMID – Mobile Money Identifier","BSR – Basic Statistical Return"], answer:1},
+
+{q:"24. Which of the following identification codes is specifically associated with the Central Know Your Customer (CKYC) framework and helps customers avoid repeatedly submitting KYC documents to different financial institutions?", options:["Permanent Account Number (PAN)","Goods and Services Tax Identification Number (GSTIN)","Mobile Money Identifier (MMID)","Know Your Customer Identification Number (KIN)"], answer:3},
+
+{q:"25. Under the PAN identification system, which of the following combinations correctly represents the five possible fourth-character classifications mentioned in the given details?", options:["P – Individual; C – Company; F – Firm; H – Hindu Undivided Family; T – Trust","P – Person; C – Customer; F – Finance; H – Holding; T – Taxpayer","P – Partnership; C – Cooperative; F – Foreign; H – Hospital; T – Trade","P – Proprietor; C – Corporation; F – Fund; H – House; T – Treasury"], answer:0},
+
+{q:"26. Which of the following codes is associated with the identification of financial securities rather than the identification of a bank, customer, bank branch or taxpayer?", options:["IFSC – Indian Financial System Code","ISIN – International Securities Identification Number","MMID – Mobile Money Identifier","PAN – Permanent Account Number"], answer:1},
+
+{q:"27. A cheque contains a special code printed using magnetic ink, which enables banking systems to recognise and process cheque information efficiently. Which technology is being referred to?", options:["International Securities Identification Number (ISIN)","Society for Worldwide Interbank Financial Telecommunication (SWIFT)","Magnetic Ink Character Recognition (MICR)","Indian Financial System Code (IFSC)"], answer:2},
+
+{q:"28. Which of the following identification systems is directly associated with the Ministry of Education (MoE) and the 'One Nation, One Student ID' initiative?", options:["Central Know Your Customer (CKYC)","Goods and Services Tax Identification Number (GSTIN)","Hallmark Unique Identification (HUID)","Automated Permanent Academic Account Registry (APAAR ID)"], answer:3},
+
+{q:"29. A bank employee is verifying an IFSC code and observes that its fifth character is '0'. What is the significance of this character in the Indian Financial System Code structure?", options:["It is reserved for future use and is represented by zero","It identifies the state in which the bank is located","It represents the type of banking institution","It identifies the customer account number"], answer:0},
+
+{q:"30. Which of the following identification codes is used in the international banking system to identify the bank, country, location and optionally the specific branch involved in cross-border financial transactions?", options:["Indian Financial System Code (IFSC)","Society for Worldwide Interbank Financial Telecommunication (SWIFT) code","Magnetic Ink Character Recognition (MICR) code","Mobile Money Identifier (MMID)"], answer:1},
+
+{q:"31. Which of the following correctly matches the identification code with the number of characters or digits in its standard format?", options:["PAN – 12 digits; GSTIN – 10 characters; IFSC – 9 digits","MICR – 11 alphanumeric characters; SWIFT – 12 digits; HUID – 7 digits","PAN – 10 alphanumeric characters; GSTIN – 15 alphanumeric characters; IFSC – 11 alphanumeric characters","ISIN – 9 digits; MMID – 11 digits; APAAR ID – 14 digits"], answer:2},
+
+{q:"32. Which organisation is responsible for developing international standards under which the International Securities Identification Number (ISIN) system was established?", options:["Reserve Bank of India (RBI)","National Payments Corporation of India (NPCI)","Central Registry of Securitisation Asset Reconstruction and Security Interest of India (CERSAI)","International Organization for Standardization (ISO)"], answer:3},
+
+{q:"33. The Goods and Services Tax Identification Number (GSTIN) was introduced in 2017 as part of India's Goods and Services Tax framework. Which major taxation reform objective is associated with its introduction?", options:["Replacing the fragmented central and state indirect tax structure with a unified GST regime","Replacing direct income tax with a single nationwide banking tax","Eliminating the need for international securities identification","Introducing a common identification number for all bank branches"], answer:0},
+
+{q:"34. Which of the following pairs correctly identifies the codes used for domestic banking purposes and international banking purposes, respectively?", options:["ISIN and PAN","IFSC and SWIFT","MMID and HUID","MICR and APAAR ID"], answer:1},
+
+{q:"35. A person purchases hallmarked gold jewellery and wants to verify its traceability through a unique identification system. Which organisation introduced the Hallmark Unique Identification (HUID) system?", options:["Reserve Bank of India (RBI)","National Payments Corporation of India (NPCI)","Bureau of Indian Standards (BIS)","Securities and Exchange Board of India (SEBI)"], answer:2},
+
+{q:"36. Which of the following statements correctly distinguishes the purposes of PAN and GSTIN in India's tax administration system?", options:["PAN identifies bank branches, whereas GSTIN identifies international securities","PAN identifies hallmarked jewellery, whereas GSTIN identifies individual bank customers","PAN facilitates instant mobile payments, whereas GSTIN facilitates cheque clearance","PAN is a unique taxpayer identifier, whereas GSTIN identifies registered taxpayers under the GST regime"], answer:3},
+
+{q:"37. In the 12-character International Securities Identification Number (ISIN), which part functions as the mathematical validation component used to check the validity of the code?", options:["The 12th character","The 3rd character","The first 2 characters","Characters 4–11"], answer:0},
+
+{q:"38. Which of the following pairs is correctly matched with its respective introduction year in India, according to the given details?", options:["APAAR ID – 2021; HUID – 2023","APAAR ID – 2023; HUID – 2021","MICR – 1996; ISIN – 1987","MMID – 2008; IFSC – 2010"], answer:1},
+
+{q:"39. Which of the following identification codes is primarily designed to support instant money transfers through mobile and internet banking and was introduced by the National Payments Corporation of India (NPCI)?", options:["Basic Statistical Return (BSR)","Know Your Customer Identification Number (KIN)","Mobile Money Identifier (MMID)","Magnetic Ink Character Recognition (MICR)"], answer:2},
+
+{q:"40. Consider the following statements regarding different identification systems: (1) BSR is a 7-digit numeric code. (2) PAN is a 10-character alphanumeric code. (3) GSTIN is a 15-character alphanumeric code. (4) APAAR ID is a 12-digit numeric code. Which of the above statements are correct according to the given details?", options:["Only 1 and 2","Only 2 and 3","Only 1, 2 and 4","All 1, 2, 3 and 4"], answer:3},
+];
+
+
+
+// ===============================
+// VARIABLES
+// ===============================
+
+let userAnswers = new Array(questions.length).fill(null);
+
+let markedForReview = new Array(questions.length).fill(false);
+
+let submitted = false;
+
+// ===============================
+// LOAD QUIZ
+// ===============================
+
+function loadQuiz(){
+
+    const quizDiv = document.getElementById("quiz");
+
+    questions.forEach((question,index)=>{
+
+        const qDiv = document.createElement("div");
+
+        qDiv.classList.add("question");
+
+        qDiv.id = `question_${index}`;
+
+        qDiv.innerHTML = `
+        <h3>Q${index+1}. ${question.q}</h3>
+        `;
+
+        question.options.forEach((option,optIndex)=>{
+
+            const opt = document.createElement("div");
+
+            opt.classList.add("option");
+
+            opt.innerText = option;
+
+            opt.onclick = ()=>selectOption(index,optIndex,opt);
+
+            opt.id = `q${index}_opt${optIndex}`;
+
+            qDiv.appendChild(opt);
+
+        });
+
+        // MARK BUTTON
+
+        const markBtn = document.createElement("button");
+
+        markBtn.innerText = "Mark For Review";
+
+        markBtn.classList.add("mark-btn");
+
+        markBtn.onclick = ()=>toggleMark(index,markBtn);
+
+        qDiv.appendChild(markBtn);
+
+        // CLEAR BUTTON
+
+        const clearBtn = document.createElement("button");
+
+        clearBtn.innerText = "Clear";
+
+        clearBtn.classList.add("clear-btn");
+
+        clearBtn.onclick = ()=>clearAnswer(index);
+
+        qDiv.appendChild(clearBtn);
+
+        quizDiv.appendChild(qDiv);
+
+    });
+
+}
+
+// ===============================
+// SELECT OPTION
+// ===============================
+
+function selectOption(qIndex,optIndex,element){
+
+    if(submitted) return;
+
+    userAnswers[qIndex] = optIndex;
+
+    const options = document.querySelectorAll(`[id^="q${qIndex}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+    element.classList.add("selected");
+
+}
+
+// ===============================
+// MARK FOR REVIEW
+// ===============================
+
+function toggleMark(index,button){
+
+    markedForReview[index] = !markedForReview[index];
+
+    const questionBox = document.getElementById(`question_${index}`);
+
+    if(markedForReview[index]){
+
+        button.classList.add("marked");
+
+        button.innerText = "Marked For Review";
+
+        questionBox.classList.add("review-marked");
+
+    }else{
+
+        button.classList.remove("marked");
+
+        button.innerText = "Mark For Review";
+
+        questionBox.classList.remove("review-marked");
+
+    }
+
+}
+
+// ===============================
+// CLEAR ANSWER
+// ===============================
+
+function clearAnswer(index){
+
+    if(submitted) return;
+
+    userAnswers[index] = null;
+
+    const options = document.querySelectorAll(`[id^="q${index}_opt"]`);
+
+    options.forEach(opt=>{
+        opt.classList.remove("selected");
+    });
+
+}
+
+// ===============================
+// SUBMIT QUIZ
+// ===============================
+
+function submitQuiz(){
+
+    if(submitted) return;
+
+    submitted = true;
+
+    clearInterval(timer);
+
+    let score = 0;
+
+    let correctCount = 0;
+    let wrongCount = 0;
+    let unansweredCount = 0;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        if(userAns === null){
+
+            unansweredCount++;
+
+        }
+        else if(userAns === question.answer){
+
+            score += 1;
+            correctCount++;
+
+        }
+        else{
+
+            score -= 0.25;
+            wrongCount++;
+
+        }
+
+    });
+
+    let attempted = correctCount + wrongCount;
+
+    let accuracy = attempted > 0
+    ? ((correctCount/attempted)*100).toFixed(2)
+    : 0;
+
+    document.body.innerHTML = `
+
+    <div class="container">
+
+        <div class="result-box">
+
+            <h1>Quiz Submitted ✅</h1>
+
+            <h2>Total Score: ${score.toFixed(2)}</h2>
+
+            <h3>Correct Answers: ${correctCount}</h3>
+
+            <h3>Wrong Answers: ${wrongCount}</h3>
+
+            <h3>Unanswered Questions: ${unansweredCount}</h3>
+
+            <h3>Accuracy: ${accuracy}%</h3>
+
+            <button class="review-btn" onclick="reviewAnswers()">
+            Review Answers
+            </button>
+
+            <div id="reviewSection"></div>
+
+        </div>
+
+    </div>
+
+    `;
+
+}
+
+// ===============================
+// REVIEW ANSWERS
+// ===============================
+
+function reviewAnswers(){
+
+    const reviewSection = document.getElementById("reviewSection");
+
+    let html = `<h1 style="margin-top:40px;">Review Section</h1>`;
+
+    questions.forEach((question,index)=>{
+
+        const userAns = userAnswers[index];
+
+        let status = "";
+        let marks = "";
+
+        if(userAns === null){
+
+            status = `<span class="unanswered">Unanswered</span>`;
+            marks = `0 Marks`;
+
+        }
+        else if(userAns === question.answer){
+
+            status = `<span class="correct">Correct ✅</span>`;
+            marks = `+1 Mark`;
+
+        }
+        else{
+
+            status = `<span class="wrong">Wrong ❌</span>`;
+            marks = `-0.25 Mark`;
+
+        }
+
+        html += `
+
+        <div class="review-question">
+
+            <h3>Q${index+1}. ${question.q}</h3>
+
+            <p>${status}</p>
+
+            <p><b>Marks:</b> ${marks}</p>
+
+            <p>
+            <b>Your Answer:</b>
+            ${
+                userAns === null
+                ? "Not Attempted"
+                : question.options[userAns]
+            }
+            </p>
+
+            <div class="correct-answer">
+            <b>Correct Answer:</b>
+            ${question.options[question.answer]}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+    reviewSection.innerHTML = html;
+
+}
+
+// ===============================
+// TIMER
+// ===============================
+
+let time = 1800;
+
+let timer;
+
+let isPaused = false;
+
+function startTimer(){
+
+    timer = setInterval(()=>{
+
+        if(!isPaused){
+
+            let minutes = Math.floor(time/60);
+
+            let seconds = time%60;
+
+            document.getElementById("timer").innerText =
+            `Time Left: ${minutes}:${seconds < 10 ? '0'+seconds : seconds}`;
+
+            time--;
+
+            if(time < 0){
+
+                clearInterval(timer);
+
+                alert("Time is up! Quiz auto-submitted.");
+
+                submitQuiz();
+
+            }
+
+        }
+
+    },1000);
+
+}
+
+// ===============================
+// PAUSE TIMER
+// ===============================
+
+function pauseTimer(){
+
+    if(submitted) return;
+
+    isPaused = true;
+
+    document.getElementById("pauseBtn").disabled = true;
+
+    document.getElementById("resumeBtn").disabled = false;
+
+    // Disable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.add("disabled-option");
+    });
+
+    // Disable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = true;
+        btn.classList.add("disabled-btn");
+    });
+
+}
+// ===============================
+// RESUME TIMER
+// ===============================
+
+function resumeTimer(){
+
+    if(submitted) return;
+
+    isPaused = false;
+
+    document.getElementById("pauseBtn").disabled = false;
+
+    document.getElementById("resumeBtn").disabled = true;
+
+    // Enable options
+    document.querySelectorAll(".option").forEach(opt=>{
+        opt.classList.remove("disabled-option");
+    });
+
+    // Enable buttons
+    document.querySelectorAll(".mark-btn, .clear-btn").forEach(btn=>{
+        btn.disabled = false;
+        btn.classList.remove("disabled-btn");
+    });
+
+}
+// ===============================
+
+loadQuiz();
+
+startTimer();
+
+</script>
+
+</body>
+</html>
